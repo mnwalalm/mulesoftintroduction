@@ -1,0 +1,66 @@
+version: '3'
+services:
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+       - "52001:80"
+
+  nodejs:
+    image: fedora/nodejs
+    container_name: nodejs
+    ports:
+       - "52002:8080"
+
+  artifactory:
+    image: jfrog-docker-registry.bintray.io/artifactory/artifactory-oss:latest
+    container_name: artifactory
+    environment:
+       - ARTIFACTORY_HOME=/var/opt/jfrog/artifactory
+    ports:
+     - "52003:8081"
+
+  jenkins:
+    image: jenkins:latest
+    container_name: jenkins
+    ports:
+     - "52004:8080"
+     - "52005:50000"
+
+  postfix:
+    image: catatnight/postfix
+    container_name: postfix
+    environment:
+     - maildomain=localhost
+     - smtp_user=postfix:postfix
+    ports:
+     - "52006:25"     # SMTP
+     - "52007:110"   # POP3   STARTTLS
+
+  mysql:
+    image: mysql:latest
+    container_name: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD='mysql'
+      - MYSQL_DATABASE='mysql'
+      - MYSQL_USER='mysql'
+      - MYSQL_PASSWORD='mysql'
+    ports:
+     - "52008:3306"
+
+  mongodb:
+    image: mongo:latest
+    container_name: mongo
+    ports:
+     - "52009:27017"
+     - "52010:28017"
+    command: --smallfiles
+
+  mongo-ui:
+    image: mongo-express:latest
+    container_name: mongo-ui
+    depends_on:
+     - mongodb
+    container_name: mongo-express
+    ports:
+     - "52011:8081" 
