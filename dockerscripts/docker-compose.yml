@@ -11,21 +11,27 @@ services:
     container_name: nodejs
     ports:
        - "52002:8080"
-
+       
   artifactory:
-    image: jfrog-docker-registry.bintray.io/artifactory/artifactory-oss:latest
+    image: docker.bintray.io/jfrog/artifactory-oss:latest
     container_name: artifactory
-    environment:
-       - ARTIFACTORY_HOME=/var/opt/jfrog/artifactory
     ports:
      - "52003:8081"
+    volumes:
+     - ~/artifactory/data:/var/opt/jfrog/artifactory/data
+     - ~/artifactory/logs:/var/opt/jfrog/artifactory/logs
+     - ~/artifactory/backup:/var/opt/jfrog/artifactory/backup
+    restart: always
 
   jenkins:
     image: jenkins:latest
     container_name: jenkins
+    volumes:
+     - ~/jenkins/conf:/var/jenkins_home
     ports:
      - "52004:8080"
      - "52005:50000"
+    restart: always
 
   postfix:
     image: catatnight/postfix
@@ -40,6 +46,8 @@ services:
   mysql:
     image: mysql:latest
     container_name: mysql
+    volumes:
+      - ~/mysql/configdb:/var/lib/mysql
     environment:
       - MYSQL_ROOT_PASSWORD='mysql'
       - MYSQL_DATABASE='mysql'
@@ -47,20 +55,23 @@ services:
       - MYSQL_PASSWORD='mysql'
     ports:
      - "52008:3306"
-
-  mongodb:
+    restart: always
+    
+  mongo:
     image: mongo:latest
     container_name: mongo
+    volumes: 
+     - ~/mongo/configdb:/data/configdb
     ports:
      - "52009:27017"
      - "52010:28017"
-    command: --smallfiles
+    restart: always
 
   mongo-ui:
+    depends_on:
+     - mongo
     image: mongo-express:latest
     container_name: mongo-ui
-    depends_on:
-     - mongodb
-    container_name: mongo-express
     ports:
      - "52011:8081" 
+     
